@@ -34,9 +34,11 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Vérification de l'extension de fichier
-def allowed_file(filename):
+def allowed_file(filename, allowed_extensions=None):
+    if allowed_extensions is None:
+        allowed_extensions = ALLOWED_EXTENSIONS
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+           filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
 @app.before_request
 def load_logged_in_user():
