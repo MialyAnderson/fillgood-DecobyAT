@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier {{ produit.titre }} - FilgooD & Deco by A.T</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 25px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            border: 1px solid #87CEEB;
+        }
+        
+        h1 {
+            color: #87CEEB;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        textarea {
+            height: 150px;
+            resize: vertical;
+        }
+        
+        .image-upload {
+            border: 2px dashed #87CEEB;
+            padding: 30px;
+            text-align: center;
+            border-radius: 5px;
+            background-color: #f8fdff;
+            cursor: pointer;
+        }
+        
+        .current-image {
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .current-image img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-cancel {
+            background-color: #f2f2f2;
+            color: #555;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #e6e6e6;
+        }
+        
+        .btn-submit {
+            background-color: #ffc107;
+            color: #333;
+        }
+        
+        .btn-submit:hover {
+            background-color: #e0a800;
+        }
+        
+        .category-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .category-option {
+            background-color: #f2f2f2;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .category-option:hover,
+        .category-option.selected {
+            background-color: #87CEEB;
+            color: white;
+        }
+        
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+        
+        .flash-message {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        
+        .flash-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .flash-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='44f0ea96-325d-49c6-a9f8-84c83e65eb44.jpg') }}" alt="Logo FilgooD & Deco" style="width: 60px; height: 60px;"/>
+            </div>
+            <div class="brand-name"><i>FilgooD & Deco by A.T</i></div>
+        </div>
+    </header>
+    
+    <div class="form-container">
+        <h1>Modifier le produit</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <form id="edit-product-form" action="{{ url_for('modifier_produit_route', produit_id=produit.id) }}" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="titre">Nom du produit*</label>
+                <input type="text" id="titre" name="titre" value="{{ produit.titre }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="prix">Prix (€)*</label>
+                <input type="number" id="prix" name="prix" step="0.01" min="0" value="{{ produit.prix }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description du produit*</label>
+                <textarea id="description" name="description" required>{{ produit.description }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Catégorie*</label>
+                <div class="category-options">
+                    <div class="category-option {% if produit.categorie == 'Amigurumi' %}selected{% endif %}" data-value="Amigurumi">Amigurumi</div>
+                    <div class="category-option {% if produit.categorie == 'Vêtements' %}selected{% endif %}" data-value="Vêtements">Vêtements</div>
+                    <div class="category-option {% if produit.categorie == 'Accessoires' %}selected{% endif %}" data-value="Accessoires">Accessoires</div>
+                    <div class="category-option {% if produit.categorie == 'Décoration' %}selected{% endif %}" data-value="Décoration">Décoration</div>
+                    <div class="category-option {% if produit.categorie == 'Bébé' %}selected{% endif %}" data-value="Bébé">Bébé</div>
+                    <div class="category-option {% if produit.categorie == 'Autres' %}selected{% endif %}" data-value="Autres">Autres</div>
+                </div>
+                <input type="hidden" id="categorie" name="categorie" value="{{ produit.categorie }}">
+            </div>
+            
+            <div class="form-group">
+                <label>Image du produit</label>
+                
+                {% if produit.image %}
+                <div class="current-image">
+                    <p>Image actuelle :</p>
+                    <img src="{{ url_for('static', filename=produit.image) }}" alt="{{ produit.titre }}">
+                </div>
+                {% endif %}
+                
+                <div class="image-upload">
+                    <input type="file" id="image" name="image" accept="image/*">
+                    <p>Sélectionnez une nouvelle image (facultatif)</p>
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <a href="{{ url_for('detail_produit', produit_id=produit.id) }}" class="btn btn-cancel">Annuler</a>
+                <button type="submit" class="btn btn-submit">Enregistrer les modifications</button>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        // Pour sélectionner une catégorie
+        const categoryOptions = document.querySelectorAll('.category-option');
+        categoryOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                categoryOptions.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                document.getElementById('categorie').value = this.getAttribute('data-value');
+            });
+        });
+        
+        // Validation du formulaire
+        document.getElementById('edit-product-form').addEventListener('submit', function(e) {
+            if (!document.getElementById('categorie').value) {
+                e.preventDefault();
+                alert('Veuillez sélectionner une catégorie.');
+            }
+        });
+    </script>
+</body>
+</html>

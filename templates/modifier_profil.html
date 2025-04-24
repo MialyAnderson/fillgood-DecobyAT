@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier mon profil - FilgooD & Deco by A.T</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border: 1px solid #87CEEB;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #87CEEB;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background-color: #87CEEB;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #5fb8e0;
+        }
+        
+        .btn-cancel {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            border: 1px solid #ddd;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #e2e6ea;
+        }
+        
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+        
+        .flash-message {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        
+        .flash-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .flash-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='44f0ea96-325d-49c6-a9f8-84c83e65eb44.jpg') }}" alt="Logo FilgooD & Deco" style="width: 80px; height: 80px; border-radius: 50%;"/>
+            </div>
+            <div class="brand-name"><i>FilgooD & Deco by A.T</i></div>
+        </div>
+
+        <div class="search-container">
+            <form action="{{ url_for('recherche') }}" method="get">
+                <input type="text" name="q" class="search-bar" placeholder="Rechercher...">
+            </form>
+        </div>
+
+        <div class="user-actions">
+            <a href="{{ url_for('index') }}" class="action-btn">
+                <div class="icon">🏠</div>
+                <span>Accueil</span>
+            </a>
+        </div>
+    </header>
+    
+    <main>
+        <div class="form-container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            <h1>Modifier mon profil</h1>
+            
+            <form action="{{ url_for('modifier_profil') }}" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="username">Nom d'utilisateur</label>
+                    <input type="text" id="username" name="username" class="form-control" value="{{ user.username }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" class="form-control" value="{{ user.email }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="profile_picture">Photo de profil</label>
+                    <input type="file" id="profile_picture" name="profile_picture" class="form-control" accept="image/*">
+                    <small>Laissez vide pour conserver la photo actuelle</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="current_password">Mot de passe actuel (pour confirmer les changements)</label>
+                    <input type="password" id="current_password" name="current_password" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_password">Nouveau mot de passe (laissez vide pour ne pas changer)</label>
+                    <input type="password" id="new_password" name="new_password" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm_password">Confirmer le nouveau mot de passe</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control">
+                </div>
+                
+                <div class="form-actions">
+                    <a href="{{ url_for('profil') }}" class="btn btn-cancel">Annuler</a>
+                    <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                </div>
+            </form>
+        </div>
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Validation du formulaire
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const newPassword = document.getElementById('new_password').value;
+                const confirmPassword = document.getElementById('confirm_password').value;
+                
+                if (newPassword && newPassword !== confirmPassword) {
+                    e.preventDefault();
+                    alert('Les mots de passe ne correspondent pas.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

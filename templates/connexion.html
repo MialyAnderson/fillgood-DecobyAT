@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - FilgooD & Deco by A.T</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .auth-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border: 1px solid #87CEEB;
+        }
+        
+        .auth-title {
+            color: #87CEEB;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 28px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: #87CEEB;
+            outline: none;
+        }
+        
+        .auth-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #87CEEB;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .auth-btn:hover {
+            background-color: #5fb8e0;
+        }
+        
+        .auth-links {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .auth-links a {
+            color: #87CEEB;
+            text-decoration: none;
+        }
+        
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+        
+        .flash-message {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        
+        .flash-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .flash-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        
+        .tab.active {
+            background-color: white;
+            border-bottom: 1px solid white;
+            margin-bottom: -1px;
+            font-weight: bold;
+            color: #87CEEB;
+        }
+        
+        #login-form {
+            display: block;
+        }
+        
+        #register-form {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='44f0ea96-325d-49c6-a9f8-84c83e65eb44.jpg') }}" alt="Logo FilgooD & Deco" style="width: 80px; height: 80px; border-radius: 50%;"/>
+            </div>
+            <div class="brand-name"><i>FilgooD & Deco by A.T</i></div>
+        </div>
+
+        <div class="search-container">
+            <form action="{{ url_for('recherche') }}" method="get">
+                <input type="text" name="q" class="search-bar" placeholder="Rechercher...">
+            </form>
+        </div>
+
+        <div class="user-actions">
+            <a href="{{ url_for('index') }}" class="action-btn">
+                <div class="icon">🏠</div>
+                <span>Accueil</span>
+            </a>
+        </div>
+    </header>
+    
+    <main>
+        <div class="auth-container">
+            <div class="tab-container">
+                <div class="tab active" id="login-tab">Connexion</div>
+                <div class="tab" id="register-tab">Inscription</div>
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            <!-- Formulaire de connexion -->
+            <form id="login-form" action="{{ url_for('connexion') }}" method="post">
+                <h2 class="auth-title">Connexion</h2>
+                
+                <div class="form-group">
+                    <label for="identifiant">Nom d'utilisateur ou Email</label>
+                    <input type="text" id="identifiant" name="identifiant" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+                
+                <button type="submit" class="auth-btn">Se connecter</button>
+                
+                <div class="auth-links">
+                    <p>Vous n'avez pas de compte ? <a href="#" id="show-register">Inscrivez-vous</a></p>
+                </div>
+            </form>
+            
+            <!-- Formulaire d'inscription -->
+            <form id="register-form" action="{{ url_for('inscription') }}" method="post" enctype="multipart/form-data">
+                <h2 class="auth-title">Créer un compte</h2>
+                
+                <div class="form-group">
+                    <label for="reg-username">Nom d'utilisateur*</label>
+                    <input type="text" id="reg-username" name="username" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg-email">Email*</label>
+                    <input type="email" id="reg-email" name="email" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg-password">Mot de passe*</label>
+                    <input type="password" id="reg-password" name="password" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg-confirm-password">Confirmer le mot de passe*</label>
+                    <input type="password" id="reg-confirm-password" name="confirm_password" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="profile-picture">Photo de profil (facultatif)</label>
+                    <input type="file" id="profile-picture" name="profile_picture" class="form-control" accept="image/*">
+                </div>
+                
+                <button type="submit" class="auth-btn">S'inscrire</button>
+                
+                <div class="auth-links">
+                    <p>Vous avez déjà un compte ? <a href="#" id="show-login">Connectez-vous</a></p>
+                </div>
+            </form>
+        </div>
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginTab = document.getElementById('login-tab');
+            const registerTab = document.getElementById('register-tab');
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const showRegister = document.getElementById('show-register');
+            const showLogin = document.getElementById('show-login');
+            
+            // Basculer entre les formulaires avec les onglets
+            loginTab.addEventListener('click', function() {
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            });
+            
+            registerTab.addEventListener('click', function() {
+                registerTab.classList.add('active');
+                loginTab.classList.remove('active');
+                registerForm.style.display = 'block';
+                loginForm.style.display = 'none';
+            });
+            
+            // Liens dans les formulaires
+            showRegister.addEventListener('click', function(e) {
+                e.preventDefault();
+                registerTab.click();
+            });
+            
+            showLogin.addEventListener('click', function(e) {
+                e.preventDefault();
+                loginTab.click();
+            });
+            
+            // Validation du formulaire d'inscription
+            registerForm.addEventListener('submit', function(e) {
+                const password = document.getElementById('reg-password').value;
+                const confirmPassword = document.getElementById('reg-confirm-password').value;
+                
+                if (password !== confirmPassword) {
+                    e.preventDefault();
+                    alert('Les mots de passe ne correspondent pas.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

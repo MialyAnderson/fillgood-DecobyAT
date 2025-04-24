@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Profil - FilgooD & Deco by A.T</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .profile-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border: 1px solid #87CEEB;
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 30px;
+        }
+        
+        .profile-picture {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #5fb8e0;
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
+            border: 3px solid #87CEEB;
+        }
+        
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        
+        .profile-info {
+            flex: 1;
+        }
+        
+        .profile-name {
+            font-size: 24px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .profile-role {
+            display: inline-block;
+            background-color: #e6f7ff;
+            color: #87CEEB;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .profile-role.admin {
+            background-color: #feeceb;
+            color: #ff6b6b;
+        }
+        
+        .profile-details {
+            margin: 20px 0;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        
+        .detail-row {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        .detail-label {
+            width: 120px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .detail-value {
+            flex: 1;
+            color: #333;
+        }
+        
+        .profile-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background-color: #87CEEB;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #5fb8e0;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+        
+        .flash-message {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        
+        .flash-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .flash-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .confirmation-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #dc3545;
+        }
+        
+        .modal-text {
+            margin-bottom: 25px;
+            color: #555;
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='44f0ea96-325d-49c6-a9f8-84c83e65eb44.jpg') }}" alt="Logo FilgooD & Deco" style="width: 80px; height: 80px; border-radius: 50%;"/>
+            </div>
+            <div class="brand-name"><i>FilgooD & Deco by A.T</i></div>
+        </div>
+
+        <div class="search-container">
+            <form action="{{ url_for('recherche') }}" method="get">
+                <input type="text" name="q" class="search-bar" placeholder="Rechercher...">
+            </form>
+        </div>
+
+        <div class="user-actions">
+            <a href="{{ url_for('index') }}" class="action-btn">
+                <div class="icon">🏠</div>
+                <span>Accueil</span>
+            </a>
+        </div>
+    </header>
+    
+    <main>
+        <div class="profile-container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            <div class="profile-header">
+                <div class="profile-picture">
+                    {% if user.profile_picture %}
+                        <img src="{{ url_for('static', filename=user.profile_picture) }}" alt="Photo de profil">
+                    {% else %}
+                        {{ user.username[0].upper() }}
+                    {% endif %}
+                </div>
+                <div class="profile-info">
+                    <h1 class="profile-name">{{ user.username }}</h1>
+                    <div class="profile-role {% if user.is_admin() %}admin{% endif %}">
+                        {{ 'Administrateur' if user.is_admin() else 'Utilisateur' }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-details">
+                <div class="detail-row">
+                    <div class="detail-label">Email:</div>
+                    <div class="detail-value">{{ user.email }}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Membre depuis:</div>
+                    <div class="detail-value">{{ user.date_inscription.strftime('%d/%m/%Y') }}</div>
+                </div>
+            </div>
+            
+            <div class="profile-actions">
+                <a href="{{ url_for('modifier_profil_form') }}" class="btn btn-primary">Modifier mon profil</a>
+                <button id="delete-account-btn" class="btn btn-danger">Supprimer mon compte</button>
+            </div>
+        </div>
+        
+        <!-- Modal de confirmation de suppression -->
+        <div id="delete-modal" class="confirmation-modal">
+            <div class="modal-content">
+                <h3 class="modal-title">Supprimer votre compte ?</h3>
+                <p class="modal-text">Cette action est irréversible. Toutes vos données seront définitivement supprimées.</p>
+                <div class="modal-actions">
+                    <button id="cancel-delete" class="btn btn-primary">Annuler</button>
+                    <form action="{{ url_for('supprimer_mon_compte') }}" method="post">
+                        <button type="submit" class="btn btn-danger">Confirmer la suppression</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gestion du modal de suppression de compte
+            const deleteBtn = document.getElementById('delete-account-btn');
+            const deleteModal = document.getElementById('delete-modal');
+            const cancelDelete = document.getElementById('cancel-delete');
+            
+            deleteBtn.addEventListener('click', function() {
+                deleteModal.style.display = 'flex';
+            });
+            
+            cancelDelete.addEventListener('click', function() {
+                deleteModal.style.display = 'none';
+            });
+            
+            // Fermer le modal si on clique à l'extérieur
+            window.addEventListener('click', function(e) {
+                if (e.target === deleteModal) {
+                    deleteModal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

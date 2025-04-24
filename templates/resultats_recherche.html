@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Résultats de recherche - FilgooD & Deco by A.T</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .product-link {
+            color: #333;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .product-link:hover {
+            color: #87CEEB;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='44f0ea96-325d-49c6-a9f8-84c83e65eb44.jpg') }}" alt="Logo FilgooD & Deco" style="width: 60px; height: 60px;"/>
+            </div>
+            <div class="brand-name"><i>FilgooD & Deco by A.T</i></div>
+        </div>
+    </header>
+    
+    <main>
+        <section class="product-section">
+            <h2>Résultats de recherche pour "{{ terme }}"</h2>
+            
+            <div class="filter-container">
+                <form action="{{ url_for('recherche') }}" method="get">
+                    <input type="hidden" name="q" value="{{ terme }}">
+                    <label for="tri">Trier par :</label>
+                    <select name="tri" id="tri" onchange="this.form.submit()">
+                        <option value="recent" {% if tri == 'recent' %}selected{% endif %}>Plus récent</option>
+                        <option value="ancien" {% if tri == 'ancien' %}selected{% endif %}>Plus ancien</option>
+                        <option value="prix_asc" {% if tri == 'prix_asc' %}selected{% endif %}>Prix croissant</option>
+                        <option value="prix_desc" {% if tri == 'prix_desc' %}selected{% endif %}>Prix décroissant</option>
+                    </select>
+                </form>
+            </div>
+            
+            <div class="products-grid">
+                {% if produits %}
+                    {% for produit in produits %}
+                        <div class="product-card">
+                            <div class="product-image">
+                                {% if produit.image %}
+                                    <img src="{{ url_for('static', filename=produit.image) }}" alt="{{ produit.titre }}">
+                                {% else %}
+                                    <div class="no-image">Image non disponible</div>
+                                {% endif %}
+                            </div>
+                            <div class="product-info">
+                                <div class="product-name">
+                                    <a href="{{ url_for('detail_produit', produit_id=produit.id) }}" class="product-link">{{ produit.titre }}</a>
+                                </div>
+                                <div class="product-price">{{ "%.2f"|format(produit.prix) }} €</div>
+                                <p class="product-description">{{ produit.description }}</p>
+                                <div class="product-date">Publié le {{ produit.date_publication.strftime('%d/%m/%Y') }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-products">
+                        <p>Aucun produit ne correspond à votre recherche.</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="{{ url_for('index') }}" style="display: inline-block; padding: 10px 20px; background-color: #87CEEB; color: white; text-decoration: none; border-radius: 5px;">Retour à l'accueil</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

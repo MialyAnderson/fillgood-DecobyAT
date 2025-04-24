@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FilgooD & Deco by A.T</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <div class="logo">
+                <img src="static\44f0ea96-325d-49c6-a9f8-84c83e65eb44.jpg" alt="Logo FilgooD & Deco" style="width: 60px; height: 60px;"/>
+            </div>
+            <div class="brand-name"><i>FilgooD & Deco by A.T</i></div>
+        </div>
+
+        <div class="search-container">
+            <form action="{{ url_for('recherche') }}" method="get">
+                <input type="text" name="q" class="search-bar" placeholder="Rechercher...">
+            </form>
+        </div>
+
+        <div class="user-actions">
+            {% if session.get('user_id') %}
+                {% set user = g.user %}
+                <div class="user-dropdown">
+                    <div class="user-avatar" id="user-menu-toggle">
+                        {% if user.profile_picture %}
+                            <img src="{{ url_for('static', filename=user.profile_picture) }}" alt="Photo de profil">
+                        {% else %}
+                            {{ user.username[0].upper() }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="dropdown-menu" id="user-dropdown-menu">
+                        {% if user.is_admin() %}
+                            <a href="{{ url_for('ajouter_produit_route') }}" class="dropdown-item">
+                                <i>➕</i> Ajouter un produit
+                            </a>
+                            <a href="{{ url_for('profil') }}" class="dropdown-item">
+                                <i>👑</i> Administration
+                            </a>
+                            <div class="dropdown-divider"></div>
+                        {% else %}
+                            <a href="{{ url_for('profil') }}" class="dropdown-item">
+                                <i>👤</i> Mon profil
+                            </a>
+                            <div class="dropdown-divider"></div>
+                        {% endif %}
+                        
+                        <form action="{{ url_for('deconnexion') }}" method="post" style="display: block;">
+                            <button type="submit" class="dropdown-item">
+                                <i>🚪</i> Déconnexion
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{{ url_for('connexion') }}" class="action-btn">
+                    <div class="icon">👤</div>
+                    <span>Connexion</span>
+                </a>
+            {% endif %}
+        </div>
+
+    </header>
+    
+    <main>
+        <section class="product-section">
+            <h2>Nos créations en crochet</h2>
+            
+            <div class="filter-container">
+                <form action="{{ url_for('index') }}" method="get">
+                    <label for="tri">Trier par :</label>
+                    <select name="tri" id="tri" onchange="this.form.submit()">
+                        <option value="recent" {% if tri == 'recent' %}selected{% endif %}>Plus récent</option>
+                        <option value="ancien" {% if tri == 'ancien' %}selected{% endif %}>Plus ancien</option>
+                        <option value="prix_asc" {% if tri == 'prix_asc' %}selected{% endif %}>Prix croissant</option>
+                        <option value="prix_desc" {% if tri == 'prix_desc' %}selected{% endif %}>Prix décroissant</option>
+                    </select>
+                </form>
+            </div>
+            
+            <div class="products-grid">
+                {% if produits %}
+                    {% for produit in produits %}
+                        <div class="product-card">
+                            <div class="product-image">
+                                {% if produit.image %}
+                                    <img src="{{ url_for('static', filename=produit.image) }}" alt="{{ produit.titre }}">
+                                {% else %}
+                                    <div class="no-image">Image non disponible</div>
+                                {% endif %}
+                            </div>
+                            <div class="product-info">
+                                <div class="product-name">
+                                    <a href="{{ url_for('detail_produit', produit_id=produit.id) }}" class="product-link">{{ produit.titre }}</a>
+                                </div>
+                                <div class="product-price">{{ "%.2f"|format(produit.prix) }} €</div>
+                                <p class="product-description">{{ produit.description }}</p>
+                                <div class="product-date">Publié le {{ produit.date_publication.strftime('%d/%m/%Y') }}</div>
+                                <button class="add-to-cart" data-produit-id="{{ produit.id }}">Ajouter au panier</button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-products">
+                        <p>Aucun produit disponible pour le moment.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gestion du menu déroulant utilisateur
+            const userMenuToggle = document.getElementById('user-menu-toggle');
+            const userDropdownMenu = document.getElementById('user-dropdown-menu');
+            
+            if (userMenuToggle) {
+                userMenuToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userDropdownMenu.classList.toggle('show');
+                });
+                
+                // Fermer le menu si on clique ailleurs sur la page
+                document.addEventListener('click', function(e) {
+                    if (userDropdownMenu && userDropdownMenu.classList.contains('show')) {
+                        userDropdownMenu.classList.remove('show');
+                    }
+                });
+                
+                // Empêcher la fermeture si on clique dans le menu
+                userDropdownMenu.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
+            
+            // Gestionnaire pour les boutons "Ajouter au panier"
+            const addToCartButtons = document.querySelectorAll('.add-to-cart');
+            
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const produitId = this.getAttribute('data-produit-id');
+                    
+                    // Appel AJAX pour ajouter au panier
+                    fetch('/ajouter-au-panier', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            produit_id: produitId,
+                            quantite: 1
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Produit ajouté au panier!');
+                        } else {
+                            alert('Erreur: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur:', error);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
