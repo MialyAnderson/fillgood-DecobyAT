@@ -53,6 +53,9 @@
             font-size: 24px;
             margin-bottom: 5px;
             color: #333;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
         }
         
         .profile-role {
@@ -86,10 +89,13 @@
             font-weight: bold;
             color: #555;
         }
-        
+
         .detail-value {
             flex: 1;
             color: #333;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
         }
         
         .profile-actions {
@@ -187,6 +193,36 @@
             justify-content: center;
             gap: 15px;
         }
+
+        @media (max-width: 576px) {
+            .profile-picture {
+                width: 80px;
+                height: 80px;
+                font-size: 32px;
+            }
+            
+            .profile-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .detail-row {
+                flex-direction: column;
+                margin-bottom: 15px;
+            }
+            
+            .detail-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            /* Améliorer l'affichage de l'email */
+            .detail-value {
+                width: 100%;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -209,6 +245,7 @@
                 <div class="icon">🏠</div>
                 <span>Accueil</span>
             </a>
+
         </div>
     </header>
     
